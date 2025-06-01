@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <title>PDF 업로드</title>
+  <style>
+    body {
+      background-color: #2d2f38;
+      color: white;
+      font-family: Arial, sans-serif;
+      text-align: center;
+      padding: 20px;
+    }
+
+    input[type="file"] {
+      margin: 20px 0;
+    }
+
+    .btn {
+      background-color: #4e4f58;
+      color: white;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    .btn:hover {
+      background-color: #6a6b75;
+    }
+  </style>
+</head>
+<body>
+
+  <h2>PDF 업로드</h2>
+
+  <form id="uploadForm" enctype="multipart/form-data">
+    <input type="file" name="pdf" accept="application/pdf" required />
+    <br />
+    <button type="submit" class="btn">업로드</button>
+  </form>
+
+  <script>
+    const uploadForm = document.getElementById('uploadForm');
+
+    uploadForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const formData = new FormData(uploadForm);
+      const response = await fetch('/upload', {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (response.ok) {
+        alert("PDF 업로드 성공!");
+        window.close();  // 업로드 성공 후 팝업 닫기
+      } else {
+        alert("업로드 실패");
+      }
+    });
+  </script>
+
+</body>
+</html>
