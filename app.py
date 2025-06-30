@@ -17,7 +17,9 @@ def login():
 @app.route("/get")
 def get_bot_response():
     userText = request.args.get('msg')
-    return str(query_vector_store(userText))
+    botText = str(query_vector_store(userText))
+    log_message(userText, botText)
+    return botText
 
 @app.route('/upload')
 def upload():
@@ -43,19 +45,15 @@ def upload_pdf():
     else:
         return jsonify({'error': 'Invalid file type'}), 400
 
-CHAT_LOG_FILE = datetime.datetime.now().strftime("%Y-%m-%d") + '_log.json'
+CHAT_LOG_FILE = 'log/' + datetime.datetime.now().strftime("%Y-%m-%d") + '_log.json'
 
-@app.route('/log', methods=['POST'])
-def log_message():
-    data = request.get_json()
-    user_message = data.get('user')
-    bot_message = data.get('bot')
 
+def log_message(user_msg, bot_msg):
     # 로그 항목 만들기
     new_entry = {
         "time" : datetime.datetime.now().strftime("%T"),
-        "user": user_message,
-        "bot": bot_message
+        "user": user_msg,
+        "bot": bot_msg
     }
 
     # 기존 로그 파일 읽기 (없으면 빈 리스트)
@@ -64,17 +62,15 @@ def log_message():
             chat_log = json.load(f)
     else:
         chat_log = []
-
     # 새 항목 추가
     chat_log.append(new_entry)
-
     # 다시 저장
     with open(CHAT_LOG_FILE, 'w', encoding='utf-8') as f:
-        json.dump(chat_log, f, ensure_ascii=False, indent=2)
+        json.dump(chat_log, f, ensure_ascii=False, indent=2, sort_keys = False)
 
     return {'status': 'ok'}
 
 
 if __name__ == '__main__':
-   #app.run('0.0.0.0',port=5000,debug=True)
+#  app.run('0.0.0.0',port=5000,debug=True)
    app.run(debug = True)

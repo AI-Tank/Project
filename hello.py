@@ -1,10 +1,10 @@
-def hello(name):
-    return f"{name}님 hello"
+import os
 
-from query import query_vector_store
+import datetime
 
-def chat() :
-   while True : 
-      query = input("Q: ")
-      completion = query_vector_store(query)
-      print(f"A: {completion}")
+CHAT_LOG_FILE = datetime.datetime.now().strftime("%Y-%m-%d") + '_log.json'
+
+if os.path.exists('log/' + CHAT_LOG_FILE):
+    print("HI")
+
+else : print("1")
