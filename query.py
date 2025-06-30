@@ -4,7 +4,8 @@ from langchain_openai import ChatOpenAI
 from langchain.vectorstores import Chroma
 from langchain_openai import OpenAIEmbeddings
 from langchain_core.messages import HumanMessage, SystemMessage
-
+from langchain_community.document_loaders import PyPDFLoader
+from langchain.text_splitter import RecursiveCharacterTextSplitter
 
 dotenv.load_dotenv()
 
@@ -15,8 +16,27 @@ openai_embeddings = OpenAIEmbeddings(model="text-embedding-3-small")
 persistent_directory = os.path.join(db_dir, "chroma_db_openai")
 
 
+def create_vector_store(file, store_name = "chroma_db_openai", embedding = openai_embeddings) :
+    file_dir = os.path.join(os.getcwd(), "doctrine")
+    loader = PyPDFLoader(os.path.join(file_dir, file))
+    document = loader.load()
+    text_splitter = RecursiveCharacterTextSplitter(chunk_size = 1000, chunk_overlap = 300)
+    texts = text_splitter.split_documents(document)
+
+    if not os.path.exists(persistent_directory) :
+        print(f"-----Creating Vector Store {store_name}-----")
+        Chroma.from_documents(
+            texts, embedding, persist_directory = persistent_directory
+        )
+        print(f"-----Finished Creating Vector Store {store_name}-----")
+    else :
+        print(
+            f"Vector Store {store_name} already exists. No need to Initialize"
+        )
+
+
 def query_vector_store(query, search_type = "similarity", search_kwargs = {"k" : 5}) :
-    store_name = "chroma_db_metadata"
+    store_name = "chroma_db_openai"
     if os.path.exists(persistent_directory) : 
         print(f"----- Querying the Vectore Store {store_name} -----")
         db = Chroma(

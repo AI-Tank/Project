@@ -1,5 +1,5 @@
 from flask import Flask, render_template, request, jsonify, json
-from query import query_vector_store
+from query import query_vector_store, create_vector_store
 from werkzeug.utils import secure_filename
 import datetime 
 import os
@@ -41,11 +41,12 @@ def upload_pdf():
     if allowed_file(file.filename):
         filename = secure_filename(file.filename)
         file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+        create_vector_store(filename)
         return jsonify({'message': 'Upload successful'}), 200
     else:
         return jsonify({'error': 'Invalid file type'}), 400
 
-CHAT_LOG_FILE = 'log/' + datetime.datetime.now().strftime("%Y-%m-%d") + '_log.json'
+CHAT_LOG_FILE = 'log/' + datetime.datetime.now().strftime("%Y-%m-%dd") + '_log.json'
 
 
 def log_message(user_msg, bot_msg):
@@ -74,3 +75,12 @@ def log_message(user_msg, bot_msg):
 if __name__ == '__main__':
 #  app.run('0.0.0.0',port=5000,debug=True)
    app.run(debug = True)
+   
+
+'''
+1. Read me 추가하기(사용된 기술 스택)
+2. langchain 구현하기
+3. 프론트엔드 가꾸기
+4. rag 성능개선 고민해보기(pdf 파일 몇 개 추가하기)
+
+'''
