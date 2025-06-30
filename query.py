@@ -6,6 +6,10 @@ from langchain_openai import OpenAIEmbeddings
 from langchain_core.messages import HumanMessage, SystemMessage
 from langchain_community.document_loaders import PyPDFLoader
 from langchain.text_splitter import RecursiveCharacterTextSplitter
+from langchain.chains import create_history_aware_retriever, create_retrieval_chain
+from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
+from langchain.chains.combine_documents import create_stuff_documents_chain
+
 
 dotenv.load_dotenv()
 
@@ -35,10 +39,15 @@ def create_vector_store(file, store_name = "chroma_db_openai", embedding = opena
         )
 
 
-def query_vector_store(query, search_type = "similarity", search_kwargs = {"k" : 5}) :
+def query_vector_store(query, chat_history, search_type = "similarity", search_kwargs = {"k" : 5}) :
+
     store_name = "chroma_db_openai"
+
+
     if os.path.exists(persistent_directory) : 
-        print(f"----- Querying the Vectore Store {store_name} -----")
+        #print(f"----- Querying the Vectore Store {store_name} -----")
+        model = ChatOpenAI()
+
         db = Chroma(
             persist_directory = persistent_directory,
             embedding_function = openai_embeddings
@@ -47,6 +56,51 @@ def query_vector_store(query, search_type = "similarity", search_kwargs = {"k" :
             search_type = search_type,
             search_kwargs = search_kwargs
         )
+        contextualize_q_system_prompt = (
+            "Given a chat history and the latest user question "
+            "which might reference context in the chat history, "
+            "formulate a standalone question which can be understood "
+            "without the chat history. Do NOT answer the question, just "
+            "reformulate it if needed and otherwise return it as is")
+
+        contextualize_q_prompt = ChatPromptTemplate.from_messages(
+            [
+                ("system", contextualize_q_system_prompt),
+                MessagesPlaceholder("chat_history"),
+                ("human", "{input}")
+            ]
+        )
+
+        history_aware_retriever = create_history_aware_retriever(
+            model, retriever, contextualize_q_prompt
+        )
+
+        qa_system_prompt = (
+            "You are an assistant for question-answering tasks. Use "
+            "the following pieces of retrieved context to answer the "
+            "question. If you don't know the answer, just say that you "
+            "don't know. Use three sentences maximum and keep the answer "
+            "concise."
+            "\n\n"
+            "{context}"
+        )
+
+        qa_prompt = ChatPromptTemplate.from_messages(
+            [
+                ("system", qa_system_prompt),
+                MessagesPlaceholder("chat_history"),
+                ("human", "{input}")
+            ]
+        )
+
+        question_answer_chain = create_stuff_documents_chain(model, qa_prompt)
+
+        rag_chain = create_retrieval_chain(history_aware_retriever, question_answer_chain)
+        
+        result = rag_chain.invoke({"input" : query, "chat_history" : chat_history})
+
+
+        '''
         relevant_docs = retriever.invoke(query)
         print(f"----- Relevant Documents for {store_name} -----")
         for i, doc in enumerate(relevant_docs, 1) : 
@@ -67,8 +121,8 @@ def query_vector_store(query, search_type = "similarity", search_kwargs = {"k" :
         ]
         model = ChatOpenAI()
         messages = model.invoke(messages)
-
+        '''
         
-        return messages.content
+        return result['answer']
     else : 
         print(f"Vector store {store_name} does not exist.")

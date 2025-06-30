@@ -1,10 +1,13 @@
-from flask import Flask, render_template, request, jsonify, json
+from flask import Flask, render_template, request, jsonify, json, session
 from query import query_vector_store, create_vector_store
 from werkzeug.utils import secure_filename
+from langchain_core.messages import HumanMessage, SystemMessage
 import datetime 
 import os
 
 app = Flask(__name__)
+
+app.secret_key = 'qwer12345'
 
 app.config.update(
    UPLOAD_FOLDER = "doctrine"
@@ -17,7 +20,11 @@ def login():
 @app.route("/get")
 def get_bot_response():
     userText = request.args.get('msg')
-    botText = str(query_vector_store(userText))
+    if "history" not in session : 
+        session["history"] = []
+    botText = str(query_vector_store(userText, chat_history = session["history"]))
+    session["history"].append(("human", userText))
+    session["history"].append(("ai", botText))
     log_message(userText, botText)
     return botText
 
@@ -79,8 +86,9 @@ if __name__ == '__main__':
 
 '''
 1. Read me 추가하기(사용된 기술 스택)
+   - 감사합니다
 2. langchain 구현하기
 3. 프론트엔드 가꾸기
 4. rag 성능개선 고민해보기(pdf 파일 몇 개 추가하기)
-
+   - chromadb Vector Store를 collection으로 관리
 '''
