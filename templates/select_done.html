@@ -1,0 +1,16 @@
+<html>
+<head>
+  <title>처리 완료</title>
+  <script>
+    window.onload = function () {
+      if (window.opener) {
+        window.opener.location.reload();  // 부모 창 새로고침
+      }
+      window.close();  // 자식 창 닫기
+    }
+  </script>
+</head>
+<body>
+  <p>처리가 완료되었습니다. 창이 곧 닫힙니다.</p>
+</body>
+</html>

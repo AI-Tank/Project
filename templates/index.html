@@ -27,8 +27,28 @@
                 }
             </script>
         </div>
-        <div class="chat-item">날씨 챗봇</div>
-        <div class="chat-item">적용중인 DB</div>
+        <div class="chat-item", onclick = "selectdb_Popup()">DB 선택
+            <script>
+                function selectdb_Popup() {
+                    const popup = window.open(
+                    "/select_db",               // Flask 라우트
+                    "select_db",           // 창 이름
+                    "width=500,height=400,resizable=no"
+                    );
+                }
+            </script>
+        </div>
+        <div class="chat-item">적용중인 DB
+            <div class="list">
+              <ul id = "selected_db">
+                  {% for item in items %}
+                    <li>{{ item }}</li>
+                  {% else %}
+                    <li>선택된 항목이 없습니다.</li>
+                  {% endfor %}
+              </ul>
+            </div>
+        </div>
     </div>
   </div>
 
@@ -121,7 +141,6 @@
     }
 
 
-
     // Utils
     function get(selector, root = document) {
       return root.querySelector(selector);
@@ -133,8 +152,6 @@
 
       return `${h.slice(-2)}:${m.slice(-2)}`;
     }
-
-
   </script>
 
 </body>

@@ -1,9 +1,11 @@
 from flask import Flask, render_template, request, jsonify, json, session
-from query import query_vector_store, create_vector_store
+from query import query_vector_store, create_vector_store, db_list
 from werkzeug.utils import secure_filename
 from langchain_core.messages import HumanMessage, SystemMessage
 import datetime 
 import os
+
+selected_db = [1, 2]
 
 app = Flask(__name__)
 
@@ -13,9 +15,23 @@ app.config.update(
    UPLOAD_FOLDER = "doctrine"
 )
 
+@app.route("/select_db")
+def select_db() :
+    global selected_db
+    return render_template('select_db.html', db = db_list(), selected_db = selected_db)
+
+
+@app.route('/select_db', methods=['POST'])
+def select():
+    global selected_db
+    selected_db = request.form.getlist('selected_items')
+    print(f"선택된 항목: {', '.join(selected_db)}")
+    return render_template('select_done.html')
+
+
 @app.route('/')
 def login():
-   return render_template('index.html')
+   return render_template('index.html', items = selected_db)
 
 @app.route("/get")
 def get_bot_response():
@@ -27,6 +43,7 @@ def get_bot_response():
     session["history"].append(("ai", botText))
     log_message(userText, botText)
     return botText
+
 
 @app.route('/upload')
 def upload():
@@ -53,7 +70,7 @@ def upload_pdf():
     else:
         return jsonify({'error': 'Invalid file type'}), 400
 
-CHAT_LOG_FILE = 'log/' + datetime.datetime.now().strftime("%Y-%m-%dd") + '_log.json'
+CHAT_LOG_FILE = 'log/' + datetime.datetime.now().strftime("%Y-%m-%d-") + '_log.json'
 
 
 def log_message(user_msg, bot_msg):
@@ -87,7 +104,6 @@ if __name__ == '__main__':
 '''
 1. Read me 추가하기(사용된 기술 스택)
    - 감사합니다
-2. langchain 구현하기
 3. 프론트엔드 가꾸기
 4. rag 성능개선 고민해보기(pdf 파일 몇 개 추가하기)
    - chromadb Vector Store를 collection으로 관리
