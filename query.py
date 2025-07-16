@@ -46,16 +46,14 @@ def create_vector_store(file, embedding = openai_embeddings) :
         )
 
 
-def query_vector_store(query, chat_history, dblist, search_type = "similarity", search_kwargs = {"k" : 5}) :
-
-    store_name = "chroma_db_openai"
-
+def query_vector_store(query, chat_history, search_type = "similarity", search_kwargs = {"k" : 5}) :
 
     if os.path.exists(persistent_directory) : 
-        #print(f"----- Querying the Vectore Store {store_name} -----")
+#        print(f"----- Querying the Vectore Store {dblist} -----")
         model = ChatOpenAI()
 
         db = Chroma(
+            collection_name = db_list(),
             persist_directory = persistent_directory,
             embedding_function = openai_embeddings
         )

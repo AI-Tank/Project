@@ -3,48 +3,25 @@
 <head>
   <meta charset="UTF-8" />
   <title>PDF 업로드</title>
-  <style>
-    body {
-      background-color: #2d2f38;
-      color: white;
-      font-family: Arial, sans-serif;
-      text-align: center;
-      padding: 20px;
-    }
-
-    input[type="file"] {
-      margin: 20px 0;
-    }
-
-    .btn {
-      background-color: #4e4f58;
-      color: white;
-      padding: 10px 20px;
-      border: none;
-      border-radius: 6px;
-      cursor: pointer;
-    }
-
-    .btn:hover {
-      background-color: #6a6b75;
-    }
-  </style>
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles/style.css') }}">
+  
 </head>
+<style>
+  .btn {
+    background-color: #4e4f58;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+  }
+
+  .btn:hover {
+    background-color: #6a6b75;
+  }
+</style>
+
 <body>
-              <ul id = "selected_db">
-                  {% for item in db %}
-                    <li>{{ item }}</li>
-                  {% else %}
-                    <li>선택된 항목이 없습니다.</li>
-                  {% endfor %}
-              </ul>
-                            <ul id = "selected_db">
-                  {% for item in selected_db %}
-                    <li>{{ item }}</li>
-                  {% else %}
-                    <li>선택된 항목이 없습니다.</li>
-                  {% endfor %}
-              </ul>
 
 <form method = "POST" onsubmit = "refreshIndex()">
   <ul>
@@ -57,7 +34,7 @@
       </li>
     {% endfor %}
   </ul>
-  <button type="submit">제출</button>
+  <button type="submit" class="btn">제출</button>
 </form>
 
 <script>
