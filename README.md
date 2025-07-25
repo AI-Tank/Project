@@ -38,7 +38,9 @@ This chatbot system is designed by combining **RAG (Retrieval-Augmented Generati
    [Excerpt or summary of retrieved documents]
    User question: "..."
    Please answer the question based on the above document.
-  
+
+  <img width="1281" height="1241" alt="image" src="https://github.com/user-attachments/assets/abc2f13e-08c9-449f-bbbb-3f243086f0be" />
+
 
 
 ===============================================================
@@ -64,6 +66,9 @@ This chatbot system is designed by combining **RAG (Retrieval-Augmented Generati
 - **역할**: 검색된 문서를 바탕으로 자연어로 응답 생성
 - **입력**: 사용자 질문 + 관련 문서(문맥)
 - **출력**: 문서 기반의 신뢰도 높은 응답
+
+<img width="1281" height="1241" alt="image" src="https://github.com/user-attachments/assets/b517eebe-aa0a-4f93-a292-7df32f74018e" />
+
 
 ---
 
